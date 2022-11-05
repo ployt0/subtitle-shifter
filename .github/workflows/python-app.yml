@@ -5,6 +5,11 @@ name: Python application
 
 on:
   push:
+    paths-ignore:
+      - '**.md'
+      - '**.png'
+      - '**.jpg'
+      - '**.webp'
     branches: [ master ]
   pull_request:
     branches: [ master ]

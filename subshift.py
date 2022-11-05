@@ -3,6 +3,9 @@ import datetime
 import re
 import sys
 
+TIME_REGEX = "\d:\d\d:\d\d\.\d\d\d"
+TIME_LINE_REGEX = "^" + TIME_REGEX + "," + TIME_REGEX + "$"
+
 
 def main(args_list):
     parser = argparse.ArgumentParser(
@@ -27,20 +30,26 @@ def main(args_list):
         args.output = args.input[:-4] + str(args.shift) + ".sbv"
     with open(args.input) as f:
         insbv = f.read()
-    time_regex = "\d:\d\d:\d\d\.\d\d\d"
-    time_line_reg = "^" + time_regex + "," + time_regex + "$"
     with open(args.output, "w") as f:
         for l in insbv.split("\n"):
-            if re.match(time_line_reg, l):
-                times = [
-                    datetime.datetime.strptime(x, "%H:%M:%S.%f")
-                    for x in l.split(",")]
-                if times[0] > pivot_time:
-                    new_times = [
-                        (x + delta_time).strftime("%H:%M:%S.%f")
-                        for x in times]
-                    l = ",".join(new_times)
+            l = match_n_move_times(pivot_time, l, delta_time)
             f.write(l + "\n")
+
+
+def match_n_move_times(
+        pivot_time: datetime,
+        l: str,
+        delta_time: datetime.timedelta):
+    if re.match(TIME_LINE_REGEX, l):
+        times = [
+            datetime.datetime.strptime(x, "%H:%M:%S.%f")
+            for x in l.split(",")]
+        if times[0] > pivot_time:
+            new_times = [
+                (x + delta_time).strftime("%H:%M:%S.%f")[1:-3]
+                for x in times]
+            l = ",".join(new_times)
+    return l
 
 
 if __name__ == "__main__":

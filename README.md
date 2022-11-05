@@ -6,4 +6,6 @@ There are probably converters I could have used, but none of the Linux programs 
 
 This works well and the export can be given directly to YouTube.
 
-It may sit unused, because I've allowed Youtube to try to guess the times. It did a great job when I was correcting its first attempt. It takes a long long time though. So probably this script will see use once again.
+It may sit unused, because I've allowed Youtube to try to guess the times. It did a great job when I was correcting its first attempt.
+
+After about an hour Youtube has come back to me with re-synced subtitles. I love it. It took my words and lip-synced. So attentive! The timings are a little different, but that's because some words have been re-flowed to adjacent lines. Just to re-iterate; YouTube took my words, verbatim. Very happy with that.

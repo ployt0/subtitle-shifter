@@ -1,6 +1,9 @@
 from unittest.mock import patch, mock_open, call
 
-from subshift import main
+import pytest
+import datetime
+
+from subshift import main, match_n_move_times
 
 
 def test_main_sub16():
@@ -43,31 +46,31 @@ def test_main_sub16():
         call('urna eleifend ac. Etiam eleifend augue sit\xa0\n'),
         call('amet posuere ultricies. Sed auctor\n'),
         call('\n'),
-        call('00:00:38.900000,00:00:45.560000\n'),
+        call('0:00:38.900,0:00:45.560\n'),
         call('metus vitae enim porttitor, eget faucibus\xa0\n'),
         call('diam lacinia. Maecenas pellentesque\n'),
         call('\n'),
-        call('00:00:45.560000,00:00:51.440000\n'),
+        call('0:00:45.560,0:00:51.440\n'),
         call('diam nec mauris tempus pulvinar. Sed vel\xa0\n'),
         call('erat eget mi aliquam dapibus a ac leo. Phasellus\n'),
         call('\n'),
-        call('00:00:51.440000,00:00:56.360000\n'),
+        call('0:00:51.440,0:00:56.360\n'),
         call('vehicula, dui non faucibus cursus, tellus\xa0\n'),
         call('nisl iaculis nulla, sed gravida ipsum\n'),
         call('\n'),
-        call('00:00:56.360000,00:01:05.840000\n'),
+        call('0:00:56.360,0:01:05.840\n'),
         call('neque sed est. Nunc bibendum neque metus,\xa0\n'),
         call('non pretium lectus auctor eget.\n'),
         call('\n'),
-        call('00:01:05.840000,00:01:12.980000\n'),
+        call('0:01:05.840,0:01:12.980\n'),
         call('Donec lobortis, libero ac mattis pellentesque,\xa0\n'),
         call('lectus nisi tincidunt ex, sit amet sollicitudin\n'),
         call('\n'),
-        call('00:01:12.980000,00:01:19.460000\n'),
+        call('0:01:12.980,0:01:19.460\n'),
         call('diam orci at felis. Etiam tempor ligula\xa0\n'),
         call('et dolor ultrices auctor. Duis id dictum dui.\n'),
         call('\n'),
-        call('00:01:21.080000,00:01:26.600000\n'),
+        call('0:01:21.080,0:01:26.600\n'),
         call('et varius.\n'),
         call('\n')
     ]
@@ -118,31 +121,31 @@ def test_main_add16():
         call('urna eleifend ac. Etiam eleifend augue sit\xa0\n'),
         call('amet posuere ultricies. Sed auctor\n'),
         call('\n'),
-        call('00:01:10.900000,00:01:17.560000\n'),
+        call('0:01:10.900,0:01:17.560\n'),
         call('metus vitae enim porttitor, eget faucibus\xa0\n'),
         call('diam lacinia. Maecenas pellentesque\n'),
         call('\n'),
-        call('00:01:17.560000,00:01:23.440000\n'),
+        call('0:01:17.560,0:01:23.440\n'),
         call('diam nec mauris tempus pulvinar. Sed vel\xa0\n'),
         call('erat eget mi aliquam dapibus a ac leo. Phasellus\n'),
         call('\n'),
-        call('00:01:23.440000,00:01:28.360000\n'),
+        call('0:01:23.440,0:01:28.360\n'),
         call('vehicula, dui non faucibus cursus, tellus\xa0\n'),
         call('nisl iaculis nulla, sed gravida ipsum\n'),
         call('\n'),
-        call('00:01:28.360000,00:01:37.840000\n'),
+        call('0:01:28.360,0:01:37.840\n'),
         call('neque sed est. Nunc bibendum neque metus,\xa0\n'),
         call('non pretium lectus auctor eget.\n'),
         call('\n'),
-        call('00:01:37.840000,00:01:44.980000\n'),
+        call('0:01:37.840,0:01:44.980\n'),
         call('Donec lobortis, libero ac mattis pellentesque,\xa0\n'),
         call('lectus nisi tincidunt ex, sit amet sollicitudin\n'),
         call('\n'),
-        call('00:01:44.980000,00:01:51.460000\n'),
+        call('0:01:44.980,0:01:51.460\n'),
         call('diam orci at felis. Etiam tempor ligula\xa0\n'),
         call('et dolor ultrices auctor. Duis id dictum dui.\n'),
         call('\n'),
-        call('00:01:53.080000,00:01:58.600000\n'),
+        call('0:01:53.080,0:01:58.600\n'),
         call('et varius.\n'),
         call('\n'),
     ]
@@ -151,3 +154,13 @@ def test_main_add16():
         [call('captions.sbv'), call('captions16.0.sbv', 'w')],
         any_order=True
     )
+
+@pytest.mark.parametrize("pivot, recorded, delta_s, new_line", [
+    ("0:01:43.920", "0:01:43.920,0:01:49.740", 45, "0:01:43.920,0:01:49.740"),
+    ("0:01:42.920", "0:01:43.920,0:01:49.740", -45, "0:00:58.920,0:01:04.740"),
+    ("0:01:42.920", "0:01:43.920,0:01:49.740", 45, "0:02:28.920,0:02:34.740"),
+])
+def test_match_n_move_times(pivot, recorded, delta_s, new_line):
+    pivot_time = datetime.datetime.strptime(pivot, "%H:%M:%S.%f")
+    assert new_line == match_n_move_times(
+        pivot_time, recorded, datetime.timedelta(seconds=delta_s))
